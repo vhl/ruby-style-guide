@@ -15,7 +15,7 @@ Style/Documentation:
   Enabled: false
 
 Metrics/LineLength:
-  Max: 80
+  Max: 100
 
 ActionFilter:
   Enabled: false
