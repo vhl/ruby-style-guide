@@ -1728,6 +1728,55 @@ no parameters.
   end
   ```
 
+  The above guidelines apply to stateful, imperative code.  For pure
+  methods implemented in a functional style, `return` should not be
+  used.  Take advantage of the fact that `if` expressions return a
+  value and nest them if necessary, but avoid writing deeply nested
+  conditionals.
+
+  ```Ruby
+  # bad
+  def pure_function(thing)
+    return 'baz' if thing[:foo]
+
+    if thing[:foo][:bar]
+      'foo'
+    else
+      'bar'
+    end
+  end
+
+  # good
+  def pure_function(thing)
+    if thing[:foo]
+      if thing[:foo][:bar]
+        'foo'
+      else
+        'bar'
+      end
+    else
+      'baz'
+    end
+  end
+  ```
+
+  However, for most case analyses, nested conditionals can be avoided
+  by using the linear `if` syntax whose clauses are ordered from most
+  specific to least specific:
+
+  ```Ruby
+  # best
+  def pure_function(thing)
+    if thing[:foo] && thing[:foo][:bar]
+      'foo'
+    elsif thing[:foo]
+      'bar'
+    else
+      'baz'
+    end
+  end
+  ```
+
 * <a name="map-find-select-reduce-size"></a>
   Prefer `map` over `collect`, `find` over `detect`, `select` over `find_all`,
   `reduce` over `inject` and `size` over `length`. This is not a hard
