@@ -4,8 +4,8 @@
 > -- Officer Alex J. Murphy / RoboCop
 
 See also:  
-[VHL Rails Style Guide](https://github.com/vhl/rails-style-guide).
-[VHL CSS style guide](https://github.com/vhl/css-style-guide).
+[VHL Rails Style Guide](https://github.com/vhl/rails-style-guide).  
+[VHL CSS style guide](https://github.com/vhl/css-style-guide).  
 
 Here's how our styles are different from the community style guide this is based on:
 https://github.com/bbatsov/ruby-style-guide/compare/master...vhl:master
