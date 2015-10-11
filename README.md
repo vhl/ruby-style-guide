@@ -1993,6 +1993,39 @@ no parameters.
   `lib/hello_world/hello_world.rb`.
 <sup>[[link](#snake-case-dirs)]</sup>
 
+* <a name="do-not-abbreviate"></a>
+  Don't use single letter variables. Or acronyms. You are a programmer. You should be good at typing things. And there is no guarantee that the abbreviation that seems obvious to you will be obvious to your colleagues.
+
+  ```Ruby
+# bad
+success_cb = Proc.new { }
+# who's to say your colleague wouldn't read this as "success? cool beans!"
+
+# good
+success_callback = Proc.new {}
+
+# bad (ok, not terrible but you can do better)
+collection.each_with_index{ |item, i| "#{item}_{#i}" }
+
+# better
+collection.each_with_index{ |item, index| "#{item}_#{index}" }
+
+# bad
+collection.each_pair do |k, v|
+ ...
+end
+
+# good
+collection.each_pair do |key, value|
+ ...
+end
+  ```
+  Exceptions:   
+    * If there is a *pressing* need to use a [`for` loop](#no-for-loops) , `i` and `j`
+    * But not `i` or `n` instead of `index`
+    * `x` and `y` when defining cartesian coordinates
+<sup>[[link](#do-not-abbreviate)]</sup>
+
 * <a name="one-class-per-file"></a>
   Aim to have just a single class/module per source file. Name the file name
   as the class/module, but replacing CamelCase with snake_case.
@@ -3248,13 +3281,8 @@ resource cleanup when possible.
   "From: #{user.first_name}, #{user.last_name}"
   ```
 
-* <a name="consistent-string-literals"></a>
-  Adopt a consistent string literal quoting style. There are two popular
-  styles in the Ruby community, both of which are considered good - single
-  quotes by default (Option A) and double quotes by default (Option B).
-<sup>[[link](#consistent-string-literals)]</sup>
-
-  * **(Option A)** Prefer single-quoted strings when you don't need
+* <a name="prefer-single-quotes"></a>
+  * Prefer single-quoted strings when you don't need
     string interpolation or special symbols such as `\t`, `\n`, `'`,
     etc.
 
@@ -3264,7 +3292,11 @@ resource cleanup when possible.
 
     # good
     name = 'Bozhidar'
+    
+    # good
+    name = "O'Reilley"
     ```
+<sup>[[link](#prefer-single-quotes)]</sup>
 
 * <a name="no-character-literals"></a>
   Don't use the character literal syntax `?x`. Since Ruby 1.9 it's basically
