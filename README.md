@@ -503,9 +503,9 @@ style guide.
     empty line between the comment block and the `def`.
 <sup>[[link](#rdoc-conventions)]</sup>
 
-* <a name="80-character-limits"></a>
-  Limit lines to 80 characters.
-<sup>[[link](#80-character-limits)]</sup>
+* <a name="line-length-limits"></a>
+  Optimal line length is 80 characters. Lines over 100 characters will throw linting errors.
+<sup>[[link](#line-length-limits)]</sup>
 
 * <a name="no-trailing-whitespace"></a>
   Avoid trailing whitespace.
