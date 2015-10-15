@@ -244,9 +244,8 @@ style guide.
     ```
 
 * <a name="indent-when-to-case"></a>
-  Indent `when` as deep as `case`. I know that many would disagree
-  with this one, but it's the style established in both "The Ruby
-  Programming Language" and "Programming Ruby".
+  Indent `when` as deep as `case`. This is the style established in both
+  "The Ruby Programming Language" and "Programming Ruby".
 <sup>[[link](#indent-when-to-case)]</sup>
 
   ```Ruby
@@ -333,7 +332,7 @@ style guide.
   ```
 
 * <a name="empty-lines-between-methods"></a>
-  Use empty lines between method definitions and also to break up a method
+  Use empty lines between method definitions and also to break up methods
   into logical paragraphs internally.
 <sup>[[link](#empty-lines-between-methods)]</sup>
 
@@ -905,6 +904,19 @@ style guide.
       # multi-line body omitted
     end
   end
+  ```
+
+* <a name="no-nested-modifiers"></a>
+  Avoid nested modifier `if/unless/while/until` usage. Favor `&&/||` if
+  appropriate.
+<sup>[[link](#no-nested-modifiers)]</sup>
+
+  ```Ruby
+  # bad
+  do_something if other_condition if some_condition
+
+  # good
+  do_something if some_condition && other_condition
   ```
 
 * <a name="unless-for-negatives"></a>
@@ -3703,6 +3715,59 @@ resource cleanup when possible.
 * <a name="prefer-public-send"></a>
   Prefer `public_send` over `send` so as not to circumvent `private`/`protected` visibility.
 <sup>[[link](#prefer-public-send)]</sup>
+
+  ```ruby
+  # We have  an ActiveModel Organization that includes concern Activatable
+  module Activatable
+    extend ActiveSupport::Concern
+
+    included do
+      before_create :create_token
+    end
+
+    private
+
+    def reset_token
+      ...
+    end
+
+    def create_token
+      ...
+    end
+
+    def activate!
+      ...
+    end
+  end
+
+  class Organization < ActiveRecord::Base
+    include Activatable
+  end
+
+  linux_organization = Organization.find(...)
+  # BAD - violates privacy
+  linux_organization.send(:reset_token)
+  # GOOD - should throw an exception
+  linux_organization.public_send(:reset_token)
+  ```
+
+* <a name="prefer-__send__"></a>
+  Prefer `__send__` over `send`, as `send` may overlap with existing methods.
+<sup>[[link](#prefer-__send__)]</sup>
+
+  ```ruby
+  require 'socket'
+
+  u1 = UDPSocket.new
+  u1.bind('127.0.0.1', 4913)
+  u2 = UDPSocket.new
+  u2.connect('127.0.0.1', 4913)
+  # Won't send a message to the receiver obj.
+  # Instead it will send a message via UDP socket.
+  u2.send :sleep, 0
+  # Will actually send a message to the receiver obj.
+  u2.__send__ ...
+  ```
 
 ## Misc
 
