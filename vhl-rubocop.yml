@@ -1,7 +1,6 @@
 require: rubocop-rspec
 
 AllCops:
-  RunRailsCops: true
   Include:
     - '**/Rakefile'
     - '**/config.ru'
@@ -10,6 +9,8 @@ AllCops:
     - 'config/**/*'
     - 'script/**/*'
     - 'vendor/**/*'
+Rails:
+  Enabled: true
 
 Style/Documentation:
   Enabled: false
