@@ -1,7 +1,7 @@
-require: rubocop-rspec
 
 AllCops:
   Include:
+    - rubocop-rspec
     - '**/Rakefile'
     - '**/config.ru'
   Exclude:
