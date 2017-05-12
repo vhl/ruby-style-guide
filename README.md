@@ -3,26 +3,12 @@
 > Role models are important. <br>
 > -- Officer Alex J. Murphy / RoboCop
 
-One thing has always bothered me as a Ruby developer&mdash;Python developers
-have a great programming style reference ([PEP-8][]) and we never got an
-official guide, documenting Ruby coding style and best practices. And I do
-believe that style matters. I also believe that a great hacker community, such
-as Ruby has, should be quite capable of producing this coveted document.
+See also:  
+[VHL Rails Style Guide](https://github.com/vhl/rails-style-guide).  
+[VHL CSS style guide](https://github.com/vhl/css-style-guide).  
 
-This guide started its life as our internal company Ruby coding guidelines
-(written by yours truly). At some point I decided that the work I was doing
-might be interesting to members of the Ruby community in general and that the
-world had little need for another internal company guideline. But the world
-could certainly benefit from a community-driven and community-sanctioned set of
-practices, idioms and style prescriptions for Ruby programming.
-
-Since the inception of the guide I've received a lot of feedback from members of
-the exceptional Ruby community around the world. Thanks for all the suggestions
-and the support! Together we can make a resource beneficial to each and every
-Ruby developer out there.
-
-By the way, if you're into Rails you might want to check out the complementary
-[Ruby on Rails Style Guide][rails-style-guide].
+Here's how our styles are different from the community style guide this is based on:
+https://github.com/bbatsov/ruby-style-guide/compare/master...vhl:master
 
 # The Ruby Style Guide
 
@@ -42,20 +28,6 @@ feedback and suggestions from members of the Ruby community and
 various highly regarded Ruby programming resources, such as
 ["Programming Ruby"][pickaxe] and
 ["The Ruby Programming Language"][trpl].
-
-There are some areas in which there is no clear consensus in the Ruby community
-regarding a particular style (like string literal quoting, spacing inside hash
-literals, dot position in multi-line method chaining, etc.). In such scenarios
-all popular styles are acknowledged and it's up to you to pick one and apply it
-consistently.
-
-This style guide evolves over time as additional conventions are
-identified and past conventions are rendered obsolete by changes in
-Ruby itself.
-
-Many projects have their own coding style guidelines (often derived
-from this guide). In the event of any conflicts, such
-project-specific guides take precedence for that project.
 
 You can generate a PDF or an HTML copy of this guide using
 [Pandoc][].
@@ -88,6 +60,7 @@ Translations of the guide are available in the following languages:
 * [Exceptions](#exceptions)
 * [Collections](#collections)
 * [Numbers](#numbers)
+* [Enumerables](#enumerables)
 * [Strings](#strings)
 * [Date & Time](#date--time)
 * [Regular Expressions](#regular-expressions)
@@ -242,21 +215,13 @@ Translations of the guide are available in the following languages:
   [1, 2, 3].each { |e| puts e }
   ```
 
-  `{` and `}` deserve a bit of clarification, since they are used
-  for block and hash literals, as well as string interpolation.
-
-  For hash literals two styles are considered acceptable.
-  The first variant is slightly more readable (and arguably more
-  popular in the Ruby community in general). The second variant has
-  the advantage of adding visual difference between block and hash
-  literals. Whichever one you pick&mdash;apply it consistently.
-
   ```ruby
+  # bad - no space after { and before }
+  {one: 1, two: 2}
+  
   # good - space after { and before }
   { one: 1, two: 2 }
 
-  # good - no space after { and before }
-  {one: 1, two: 2}
   ```
 
   With interpolated expressions, there should be no padded-spacing inside the braces.
@@ -543,13 +508,9 @@ Translations of the guide are available in the following languages:
   ```
 
 * <a name="consistent-multi-line-chains"></a>
-    Adopt a consistent multi-line method chaining style. There are two popular
-    styles in the Ruby community, both of which are considered
-    good&mdash;leading `.` (Option A) and trailing `.` (Option B).
-<sup>[[link](#consistent-multi-line-chains)]</sup>
-
-  * **(Option A)** When continuing a chained method invocation on
+  When continuing a chained method invocation on
     another line keep the `.` on the second line.
+<sup>[[link](#consistent-multi-line-chains)]</sup>
 
     ```ruby
     # bad - need to consult first line to understand second line
@@ -560,23 +521,6 @@ Translations of the guide are available in the following languages:
     one.two.three
       .four
     ```
-
-  * **(Option B)** When continuing a chained method invocation on another line,
-    include the `.` on the first line to indicate that the
-    expression continues.
-
-    ```ruby
-    # bad - need to read ahead to the second line to know that the chain continues
-    one.two.three
-      .four
-
-    # good - it's immediately clear that the expression continues beyond the first line
-    one.two.three.
-      four
-    ```
-
-  A discussion on the merits of both alternative styles can be found
-  [here](https://github.com/bbatsov/ruby-style-guide/pull/176).
 
 * <a name="no-double-indent"></a>
     Align the parameters of a method call if they span more than one
@@ -679,9 +623,9 @@ Translations of the guide are available in the following languages:
     empty line between the comment block and the `def`.
 <sup>[[link](#rdoc-conventions)]</sup>
 
-* <a name="80-character-limits"></a>
-  Limit lines to 80 characters.
-<sup>[[link](#80-character-limits)]</sup>
+* <a name="line-length-limits"></a>
+  Optimal line length is 80 characters. Lines over 100 characters will throw linting errors.
+<sup>[[link](#line-length-limits)]</sup>
 
 * <a name="no-trailing-whitespace"></a>
   Avoid trailing whitespace.
@@ -2030,6 +1974,55 @@ no parameters.
   end
   ```
 
+  The above guidelines apply to stateful, imperative code.  For pure
+  methods implemented in a functional style, `return` should not be
+  used.  Take advantage of the fact that `if` expressions return a
+  value and nest them if necessary, but avoid writing deeply nested
+  conditionals.
+
+  ```ruby
+  # bad
+  def pure_function(thing)
+    return 'baz' if thing[:foo]
+
+    if thing[:foo][:bar]
+      'foo'
+    else
+      'bar'
+    end
+  end
+
+  # good
+  def pure_function(thing)
+    if thing[:foo]
+      if thing[:foo][:bar]
+        'foo'
+      else
+        'bar'
+      end
+    else
+      'baz'
+    end
+  end
+  ```
+
+  However, for most case analyses, nested conditionals can be avoided
+  by using the linear `if` syntax whose clauses are ordered from most
+  specific to least specific:
+
+  ```ruby
+  # best
+  def pure_function(thing)
+    if thing[:foo] && thing[:foo][:bar]
+      'foo'
+    elsif thing[:foo]
+      'bar'
+    else
+      'baz'
+    end
+  end
+  ```
+
 * <a name="map-find-select-reduce-size"></a>
   Prefer `map` over `collect`, `find` over `detect`, `select` over `find_all`,
   `reduce` over `inject` and `size` over `length`. This is not a hard
@@ -2208,6 +2201,39 @@ no parameters.
   Use `snake_case` for naming directories, e.g.
   `lib/hello_world/hello_world.rb`.
 <sup>[[link](#snake-case-dirs)]</sup>
+
+* <a name="do-not-abbreviate"></a>
+  Don't use single letter variables. Or acronyms. You are a programmer. You should be good at typing things. And there is no guarantee that the abbreviation that seems obvious to you will be obvious to your colleagues.
+
+  ```ruby
+# bad
+success_cb = Proc.new { }
+# who's to say your colleague wouldn't read this as "success? cool beans!"
+
+# good
+success_callback = Proc.new {}
+
+# bad (ok, not terrible but you can do better)
+collection.each_with_index{ |item, i| "#{item}_{#i}" }
+
+# better
+collection.each_with_index{ |item, index| "#{item}_#{index}" }
+
+# bad
+collection.each_pair do |k, v|
+ ...
+end
+
+# good
+collection.each_pair do |key, value|
+ ...
+end
+  ```
+  Exceptions:   
+    * If there is a *pressing* need to use a [`for` loop](#no-for-loops) , `i` and `j`
+    * But not `i` or `n` instead of `index`
+    * `x` and `y` when defining cartesian coordinates
+<sup>[[link](#do-not-abbreviate)]</sup>
 
 * <a name="one-class-per-file"></a>
   Aim to have just a single class/module per source file. Name the file name
@@ -2552,16 +2578,14 @@ no parameters.
     def some_method
     end
 
-    # protected and private methods are grouped near the end
-    protected
 
     def some_protected_method
     end
-
-    private
+    protected :some_protected_method
 
     def some_private_method
     end
+    private :some_private_method
   end
   ```
 
@@ -2921,13 +2945,11 @@ no parameters.
 <sup>[[link](#visibility)]</sup>
 
 * <a name="indent-public-private-protected"></a>
-  Indent the `public`, `protected`, and `private` methods as much as the method
-  definitions they apply to. Leave one blank line above the visibility modifier
-  and one blank line below in order to emphasize that it applies to all methods
-  below it.
+ Use the 'protected' and 'private' methods to explicitly declare a method as protected/private.
 <sup>[[link](#indent-public-private-protected)]</sup>
 
   ```ruby
+  # bad
   class SomeClass
     def public_method
       # some code
@@ -2941,6 +2963,21 @@ no parameters.
 
     def another_private_method
       # some code
+    end
+  end
+  
+  # good
+  class SomeClass
+    def public_method
+      # ...
+    end
+
+    private def private_method
+      # ...
+    end
+  
+    private def another_private_method
+      # ...
     end
   end
   ```
@@ -3622,6 +3659,30 @@ resource cleanup when possible.
     # good
     rand(1..6)
     ```
+## Enumerables
+
+* <a name="break-up-enumerables"></a>
+  More than one Enumerable method in a method ramps up complexity exponentially.  
+  Break these down into smaller methods.  
+<sup>[[link](#break-up-enumerables)]</sup>
+
+* <a name="enumerate-right"></a>
+  Make sure you’re using the correct Enumerable method.  If you are aggregating results 
+  into an array or hash, use inject; don’t use an external variable and an each loop.  
+  If you need to transform elements, use map/collect.  
+<sup>[[link](#enumerate-right)]</sup>
+
+* <a name="enum-use-count"></a>
+  Use count instead of select { block }.size.  
+<sup>[[link](#enum-use-count)]</sup>
+
+* <a name="enum-use-any"></a>
+  Use any? rather than select { block }.size > 0.  
+<sup>[[link](#enum-use-any)]</sup>
+
+* <a name="none-vs-select"></a>
+  Use none?  Instead of select { block }.size == 0.
+<sup>[[link](#none-vs-select)]</sup>
 
 ## Strings
 
@@ -3641,13 +3702,20 @@ resource cleanup when possible.
   email_with_name = format('%s <%s>', user.name, user.email)
   ```
 
-* <a name="consistent-string-literals"></a>
-  Adopt a consistent string literal quoting style. There are two popular
-  styles in the Ruby community, both of which are considered good&mdash;single
-  quotes by default (Option A) and double quotes by default (Option B).
-<sup>[[link](#consistent-string-literals)]</sup>
+* <a name="pad-string-interpolation"></a>
+  With interpolated expressions, there should be no padded-spacing inside the braces.
+<sup>[[link](#pad-string-interpolation)]</sup>
 
-  * **(Option A)** Prefer single-quoted strings when you don't need
+  ```ruby
+  # bad
+  "From: #{ user.first_name }, #{ user.last_name }"
+
+  # good
+  "From: #{user.first_name}, #{user.last_name}"
+  ```
+
+* <a name="prefer-single-quotes"></a>
+  * Prefer single-quoted strings when you don't need
     string interpolation or special symbols such as `\t`, `\n`, `'`,
     etc.
 
@@ -3657,20 +3725,11 @@ resource cleanup when possible.
 
     # good
     name = 'Bozhidar'
-    ```
-
-  * **(Option B)** Prefer double-quotes unless your string literal
-    contains `"` or escape characters you want to suppress.
-
-    ```ruby
-    # bad
-    name = 'Bozhidar'
 
     # good
-    name = "Bozhidar"
+    name = "O'Reilley"
     ```
-
-  The string literals in this guide are aligned with the first style.
+<sup>[[link](#prefer-single-quotes)]</sup>
 
 * <a name="no-character-literals"></a>
   Don't use the character literal syntax `?x`. Since Ruby 1.9 it's basically
